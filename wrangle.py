@@ -445,3 +445,28 @@ def modeling_small_scale(X_train, X_test, y_train, y_test, means_list, chi2_list
             p['model'] = models[number]
         new_df = pd.DataFrame(pd.DataFrame(grid.cv_results_['params']).sort_values('score', ascending=False))
         return new_df
+
+
+def prepare_data_kaggle_unseen(df):
+    the_columns = ['HomePlanet', 'Destination']
+
+    boolean_cols = ['VIP', 'CryoSleep']
+
+    data = df.dropna(subset = ['HomePlanet', 'CryoSleep', 'Destination', 'VIP', 'RoomService']).copy()
+
+    for columns in data.select_dtypes(include=['float64']).columns.tolist():
+        data[columns] = data[columns].fillna(data[columns].mean())
+
+
+
+
+    dummy = pd.get_dummies(data[the_columns])
+    data = pd.concat([data, dummy], axis=1)
+
+    for col in boolean_cols:
+        
+        data[col] = data[col].astype('bool').astype('int')
+
+    data = data.drop(columns = ['HomePlanet', 'Name', 'Cabin', 'Destination'])
+
+    return data
